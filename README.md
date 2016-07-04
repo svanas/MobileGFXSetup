@@ -43,4 +43,5 @@ Graham Murt [modified this project on February 5, 2015](http://riversoftavg.com/
 * Added some code to load/save the filenames to an ini file so that the previous selection is remembered when run.
 
 Tom Grubb [modified this project on February 7, 2015](http://riversoftavg.com/blogs/index.php/2015/02/07/creating-icons-and-launchers-for-delphi-mobile-applications-redux/):
-* Extended Graham's update a little bit for the Android splash images and persisting the rectangles as well.
+* Fixed optset bugs for iPhone larger sizes
+* Added code to persist the selection rectangles
