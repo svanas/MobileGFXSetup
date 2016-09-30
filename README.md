@@ -45,3 +45,15 @@ Graham Murt [modified this project on February 5, 2015](http://riversoftavg.com/
 Tom Grubb [modified this project on February 7, 2015](http://riversoftavg.com/blogs/index.php/2015/02/07/creating-icons-and-launchers-for-delphi-mobile-applications-redux/):
 * Fixed optset bugs for iPhone larger sizes
 * Added code to persist the selection rectangles
+
+Stefan van As modified this project on September 30, 2016:
+ * Added iMessage app icons:
+* 60x45x2
+* 60x45x3
+* 67x50x2
+* 74x55x2
+* 27x20x2
+* 27x20x3
+* 32x24x2
+* 32x24x3
+* 1024x768x1

@@ -6,6 +6,8 @@ unit MobileGfxSetupMain;
 //
 //--- Development History  ---------------------------------------------------
 //
+//      09/2016 svanas
+//              - Added iMessage app icons
 //      02/2015 T. Grubb
 //              - Fixed optset bugs for iPhone larger sizes
 //              - Added 750x1334 iPhone Launch image
@@ -22,6 +24,8 @@ unit MobileGfxSetupMain;
 //
 //=== End File Prolog ========================================================
 
+{$DEFINE iMessage}
+
 interface
 
 uses
@@ -37,7 +41,14 @@ type
     AndroidName: String;
     iPhoneName: String;
     iPadName: String;
-    constructor Create(const X, Y : Integer; aiPhoneName: String = ''; aiPadName: String = ''; aAndroidName: String = '');
+{$IFDEF iMessage}
+    iMessageName: String;
+{$ENDIF}
+    constructor Create(const X, Y : Integer; aiPhoneName: String = ''; aiPadName: String = ''; aAndroidName: String = ''
+{$IFDEF iMessage}
+    ; aiMessageName: String = ''
+{$ENDIF}
+    );
   end;
   TSizeInfos = Array of TSizeInfo;
   TRatio = (r1to1, r1_77to1, r1_47to1, r1_37to1, r1_33to1, r0_76to1, r0_75to1, r0_66to1, r0_56to1);
@@ -73,6 +84,9 @@ type
     procedure ceBaseNameChange(Sender: TObject);
   private
     { Private declarations }
+{$IFDEF iMessage}
+    lbiiMessage: TListBoxItem;
+{$ENDIF}
     procedure InitializeRatios;
     procedure InitializeGroupBoxes;
     procedure FilenameChange(Sender: TObject);
@@ -138,6 +152,11 @@ begin
   InitializeRatios;
   InitializeGroupBoxes;
   ceBaseName.Text := Setting['base_filename'];
+{$IFDEF iMessage}
+  lbiiMessage := TListBoxItem.Create(Self);
+  ListBox1.AddObject(lbiiMessage);
+  lbiiMessage.Text := 'iMessage';
+{$ENDIF}
 end;
 
 procedure TfrmMobileGfxSetup.GenerateImage(aBitmap: TBitmap; Width, Height: Integer;
@@ -188,11 +207,22 @@ begin
       // first, see if we are generating this file
       if not (((RatioOutputs[i][j].AndroidName <> '') and lbiAndroid.IsChecked) or
         ((RatioOutputs[i][j].iPhoneName <> '') and lbiiPhone.IsChecked) or
-        ((RatioOutputs[i][j].iPadName <> '') and lbiiPad.IsChecked)) then Continue;
+        ((RatioOutputs[i][j].iPadName <> '') and lbiiPad.IsChecked)
+{$IFDEF iMessage}
+        or ((RatioOutputs[i][j].iMessageName <> '') and lbiiMessage.IsChecked)
+{$ENDIF}
+        ) then Continue;
       // generate filename: basename + WidthXHeight.png
-      aFilename := TPath.Combine(TPath.GetDirectoryName(ceBaseName.Text), TPath.ChangeExtension(
-        TPath.GetFileNameWithoutExtension( ceBaseName.Text ) +
-        RatioOutputs[i][j].Width.ToString+'x'+RatioOutputs[i][j].Height.ToString, '.png' ));
+{$IFDEF iMessage}
+      if RatioOutputs[i][j].iMessageName <> '' then
+        aFilename := TPath.Combine(
+          TPath.GetDirectoryName(ceBaseName.Text),
+          TPath.ChangeExtension(RatioOutputs[i][j].iMessageName, '.png'))
+      else
+{$ENDIF}
+        aFilename := TPath.Combine(TPath.GetDirectoryName(ceBaseName.Text), TPath.ChangeExtension(
+          TPath.GetFileNameWithoutExtension( ceBaseName.Text ) +
+          RatioOutputs[i][j].Width.ToString+'x'+RatioOutputs[i][j].Height.ToString, '.png' ));
       // save into optsets
       if (RatioOutputs[i][j].AndroidName <> '') and lbiAndroid.IsChecked then
         AndroidOptions.PropertyGroup.ChildValues[RatioOutputs[i][j].AndroidName] := aFilename;
@@ -321,16 +351,26 @@ begin
   RatioOutputs[r1_37to1][0] := TSizeInfo.Create(2048, 1496, '', 'iPad_Launch2048');
   RatioOutputs[r1_37to1][1] := TSizeInfo.Create(1024, 748, '', 'iPad_Launch1024');
 
-  SetLength(RatioOutputs[r1_33to1], 5);
+  SetLength(RatioOutputs[r1_33to1], {$IFDEF iMessage}14{$ELSE}5{$ENDIF});
   RatioOutputs[r1_33to1][0] := TSizeInfo.Create(2048, 1536, '', 'iPad_Launch2048x1536');
   RatioOutputs[r1_33to1][1] := TSizeInfo.Create(1024, 768, '', 'iPad_Launch1024x768');
   RatioOutputs[r1_33to1][2] := TSizeInfo.Create(640, 480, '', '', 'Android_SplashImage640');
   RatioOutputs[r1_33to1][3] := TSizeInfo.Create(960, 720, '', '', 'Android_SplashImage960');
   RatioOutputs[r1_33to1][4] := TSizeInfo.Create(426, 320, '', '', 'Android_SplashImage426'); // 1.33125
+{$IFDEF iMessage}
+  RatioOutputs[r1_33to1][5] := TSizeInfo.Create(120, 90, '', '', '', 'iMessage_Icon_60x45x2');
+  RatioOutputs[r1_33to1][6] := TSizeInfo.Create(180, 135, '', '', '',  'iMessage_Icon_60x45x3');
+  RatioOutputs[r1_33to1][7] := TSizeInfo.Create(134, 100, '', '', '',  'iMessage_Icon_67x50x2');
+  RatioOutputs[r1_33to1][8] := TSizeInfo.Create(148, 110, '', '', '',  'iMessage_Icon_74x55x2');
+  RatioOutputs[r1_33to1][9] := TSizeInfo.Create(54, 40, '', '', '',  'iMessage_Icon_27x20x2');
+  RatioOutputs[r1_33to1][10] := TSizeInfo.Create(81, 60, '', '', '',  'iMessage_Icon_27x20x3');
+  RatioOutputs[r1_33to1][11] := TSizeInfo.Create(64, 48, '', '', '',  'iMessage_Icon_32x24x2');
+  RatioOutputs[r1_33to1][12] := TSizeInfo.Create(96, 72, '', '', '',  'iMessage_Icon_32x24x3');
+  RatioOutputs[r1_33to1][13] := TSizeInfo.Create(1024, 768, '', '', '',  'iMessage_Icon_1024x768x1');
+{$ENDIF}
 
   SetLength(RatioOutputs[r1_77to1], 1);
   RatioOutputs[r1_77to1][0] := TSizeInfo.Create(2208, 1242, 'iPhone_Launch2208x1242');
-
 
   SetLength(RatioOutputs[r0_76to1], 2);
   RatioOutputs[r0_76to1][0] := TSizeInfo.Create(1536, 2008, '', 'iPad_Launch1536');
@@ -406,7 +446,11 @@ var
   rf: TRatioFrame;
   LDirectoryName: String;
 begin
-  if not (lbiiPhone.IsChecked or lbiiPad.IsChecked or lbiAndroid.IsChecked) then
+  if not (lbiiPhone.IsChecked or lbiiPad.IsChecked or lbiAndroid.IsChecked
+{$IFDEF iMessage}
+  or lbiiMessage.IsChecked
+{$ENDIF}
+  ) then
     raise Exception.Create('An output device must be checked');
   result := True;
   Log('Validating Ratio Inputs...');
@@ -446,13 +490,20 @@ end;
 
 { TSizeInfoInfo }
 
-constructor TSizeInfo.Create(const X, Y: Integer; aiPhoneName, aiPadName, aAndroidName: String);
+constructor TSizeInfo.Create(const X, Y: Integer; aiPhoneName, aiPadName, aAndroidName
+{$IFDEF iMessage}
+  , aiMessageName
+{$ENDIF}
+: String);
 begin
   Width := X;
   Height := Y;
   iPhoneName := aiPhoneName;
   iPadName := aiPadName;
   AndroidName := aAndroidName;
+{$IFDEF iMessage}
+  iMessageName := aiMessageName;
+{$ENDIF}
 end;
 
 end.
